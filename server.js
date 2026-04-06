@@ -183,8 +183,7 @@ app.get('/api/movers', async (req, res) => {
   res.json(results);
 });
 
-app.listen(PORT, () => {
-  console.log(`\n  US Morning Market Briefing`);
-  console.log(`  http://localhost:${PORT}`);
-  console.log(`  Press Ctrl+C to stop\n`);
+const port = process.env.PORT || 3000;
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
 });
