@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Morning Market Briefing</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --dim: #484f58;
+  --green: #3fb950;
+  --red: #f85149;
+  --amber: #d29922;
+  --blue: #58a6ff;
+  --mono: 'SF Mono','Fira Code','Roboto Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+
+/* ── LANDING ── */
+#landing{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+.land-wrap{max-width:700px;width:100%;text-align:center}
+.land-wrap h1{font-size:1.6rem;font-weight:400;color:var(--muted);margin-bottom:.4rem}
+.land-wrap h2{font-size:2.2rem;font-weight:600;margin-bottom:.5rem}
+.land-wrap p{color:var(--muted);margin-bottom:2.5rem;font-size:1rem}
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.mode-btn{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.8rem 1.2rem;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;color:var(--text)}
+.mode-btn:hover{border-color:var(--blue);background:var(--bg3)}
+.mode-letter{display:block;font-size:2rem;font-weight:700;color:var(--blue);font-family:var(--mono);margin-bottom:.5rem}
+.mode-name{display:block;font-size:1.1rem;font-weight:600;margin-bottom:.4rem}
+.mode-desc{display:block;font-size:.82rem;color:var(--muted);line-height:1.4}
+@media(max-width:600px){.mode-grid{grid-template-columns:1fr}}
+
+/* ── FETCH GATE ── */
+.fetch-gate{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;gap:1rem}
+.fetch-btn{background:var(--blue);color:#000;border:none;padding:.6rem 1.4rem;border-radius:6px;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .15s}
+.fetch-btn:hover{opacity:.85}
+.fetch-btn:disabled{opacity:.5;cursor:not-allowed}
+.fetch-desc{color:var(--muted);font-size:.82rem;text-align:center}
+.tab-spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tab-fetched-bar{display:flex;align-items:center;gap:.8rem;padding:.5rem 0 .8rem;font-size:.75rem;color:var(--dim);border-bottom:1px solid var(--border);margin-bottom:1rem}
+.refresh-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.18rem .6rem;border-radius:4px;font-size:.72rem;cursor:pointer}
+.refresh-btn:hover{border-color:var(--muted);color:var(--text)}
+
+/* ── REPORT ── */
+#report{display:none;flex-direction:column;min-height:100vh}
+.rpt-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:10}
+.rpt-title{font-size:1rem;font-weight:600}
+.rpt-meta{display:flex;align-items:center;gap:1rem;font-size:.8rem;color:var(--muted);font-family:var(--mono)}
+.mode-badge{background:var(--blue);color:#000;padding:.15rem .55rem;border-radius:4px;font-size:.75rem;font-weight:700}
+#back-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-size:.8rem;transition:border-color .2s,color .2s}
+#back-btn:hover{border-color:var(--text);color:var(--text)}
+
+.tab-bar{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 1rem;gap:.2rem;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{background:transparent;border:none;color:var(--muted);padding:.7rem 1rem;cursor:pointer;font-size:.85rem;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+.tab-pane{display:none;padding:1.5rem;max-width:1200px;margin:0 auto;width:100%}
+.tab-pane.active{display:block}
+
+/* ── CARDS & TABLES ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin-bottom:1rem}
+.card-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.9rem}
+.data-grid{display:grid;gap:.55rem}
+.data-row{display:grid;grid-template-columns:160px 1fr;gap:.5rem;align-items:baseline;font-size:.88rem}
+.data-row.wide{grid-template-columns:200px 1fr}
+.lbl{color:var(--muted);font-family:var(--mono);font-size:.82rem}
+.val{font-family:var(--mono);font-weight:600}
+.src{font-size:.7rem;color:var(--dim);font-family:var(--mono)}
+.src a{color:var(--dim);text-decoration:none}
+.src a:hover{color:var(--muted)}
+
+.pos{color:var(--green)}
+.neg{color:var(--red)}
+.amb{color:var(--amber)}
+.neu{color:var(--muted)}
+
+.chg-badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.82rem;font-family:var(--mono)}
+.freshness{font-size:.68rem;padding:.1rem .35rem;border-radius:3px;font-weight:600;margin-left:.3rem;vertical-align:middle}
+.fresh-live{background:#1a3a1a;color:var(--green);border:1px solid #2a5a2a}
+.fresh-delayed{background:#3a3000;color:var(--amber);border:1px solid #5a5000}
+.fresh-close{background:#1a2a3a;color:var(--blue);border:1px solid #2a4a6a}
+.fresh-na{background:#2a1a1a;color:var(--red);border:1px solid #4a2a2a}
+
+/* ── PIVOT MAP ── */
+.pivot-map{font-family:var(--mono);font-size:.82rem;padding:.5rem 0}
+.pivot-row{display:flex;align-items:center;gap:.8rem;margin:.3rem 0}
+.pivot-row .plbl{width:52px;color:var(--muted);text-align:right}
+.pivot-row .pline{flex:1;height:1px;background:var(--border);position:relative}
+.pivot-row .pline.r2{background:#4a1a1a}
+.pivot-row .pline.r1{background:#3a2a1a}
+.pivot-row .pline.pp{background:#1a3a1a}
+.pivot-row .pline.s1{background:#1a3a1a}
+.pivot-row .pline.s2{background:#1a1a4a}
+.pivot-row .pval{width:80px;font-weight:600}
+.pivot-row .pnote{color:var(--muted);font-size:.72rem}
+
+/* ── RSI BAR ── */
+.rsi-track{height:8px;background:var(--border);border-radius:4px;position:relative;margin:.6rem 0}
+.rsi-fill{height:100%;border-radius:4px;background:var(--blue);transition:width .5s}
+.rsi-zones{display:flex;justify-content:space-between;font-size:.68rem;color:var(--dim);margin-top:.2rem}
+
+/* ── SECTOR TABLE ── */
+.sector-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.sector-table th{text-align:left;padding:.4rem .6rem;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.sector-table td{padding:.45rem .6rem;border-bottom:1px solid var(--bg3);font-family:var(--mono)}
+.sector-table tr:last-child td{border-bottom:none}
+.bar-cell{width:160px}
+.pct-bar{height:6px;border-radius:3px;display:inline-block}
+
+/* ── NEWS ── */
+.news-item{border-bottom:1px solid var(--border);padding:.9rem 0}
+.news-item:last-child{border-bottom:none}
+.news-tag{font-size:.67rem;font-weight:700;padding:.1rem .4rem;border-radius:3px;margin-right:.4rem;background:var(--bg3);color:var(--blue);border:1px solid var(--border)}
+.news-title{font-size:.9rem;font-weight:600;margin:.3rem 0 .2rem}
+.news-impact{font-size:.82rem;color:var(--muted);margin-bottom:.3rem}
+.news-link a{font-size:.78rem;color:var(--blue);text-decoration:none}
+.news-link a:hover{text-decoration:underline}
+.news-meta{font-size:.72rem;color:var(--dim);margin-top:.2rem}
+
+/* ── VERDICT ── */
+.verdict-card{border-radius:8px;padding:1.4rem;margin-bottom:1rem}
+.verdict-bull{background:#0d2418;border:1px solid #1a5c2a}
+.verdict-bear{background:#2a0d0d;border:1px solid #5c1a1a}
+.verdict-neu{background:#1a1a2a;border:1px solid #2a2a5c}
+.verdict-bias{font-size:1.6rem;font-weight:700;text-transform:uppercase;margin-bottom:.3rem}
+.verdict-open{font-size:.9rem;color:var(--muted);margin-bottom:.8rem}
+.confidence-row{display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--muted)}
+.conf-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.conf-high{background:var(--green)}
+.conf-med{background:var(--amber)}
+.conf-low{background:var(--red)}
+.key-level-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.8rem 1rem;margin:.8rem 0;font-size:.85rem}
+.key-level-box .kl-num{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--amber)}
+.trader-note{font-size:.85rem;color:var(--muted);line-height:1.6;padding:.8rem;background:var(--bg3);border-radius:6px;border-left:3px solid var(--blue)}
+
+/* ── NA BOX ── */
+.na-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.7rem 1rem;font-size:.82rem;color:var(--muted);display:flex;align-items:flex-start;gap:.5rem}
+.na-box a{color:var(--blue)}
+
+/* ── DISCLAIMER ── */
+.disclaimer{padding:1.2rem 1.5rem;font-size:.72rem;color:var(--dim);border-top:1px solid var(--border);line-height:1.5;text-align:center;max-width:1200px;margin:0 auto;width:100%}
+
+/* ── GLOBAL MOOD BADGE ── */
+.mood-badge{display:inline-block;padding:.2rem .7rem;border-radius:4px;font-size:.78rem;font-weight:600}
+.mood-pos{background:#0d2418;color:var(--green);border:1px solid var(--green)}
+.mood-neg{background:#2a0d0d;color:var(--red);border:1px solid var(--red)}
+.mood-mix{background:#2a2000;color:var(--amber);border:1px solid var(--amber)}
+
+.section-hd{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:.8rem 0 .4rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
+.time-windows .tw-row{display:grid;grid-template-columns:130px 1fr;gap:.5rem;font-size:.83rem;padding:.3rem 0;border-bottom:1px solid var(--bg3);color:var(--muted)}
+.time-windows .tw-row span:first-child{font-family:var(--mono);color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- ── LANDING ─────────────────────────────────────────────── -->
+<div id="landing">
+  <div class="land-wrap">
+    <h1>Good morning.</h1>
+    <h2>What kind of trader are you today?</h2>
+    <p>Select your view to generate a live market briefing.</p>
+    <div class="mode-grid">
+      <button class="mode-btn" onclick="selectMode('A')">
+        <span class="mode-letter">A</span>
+        <span class="mode-name">Intraday</span>
+        <span class="mode-desc">Levels, technicals, options pulse, today's news.</span>
+      </button>
+      <button class="mode-btn" onclick="selectMode('B')">
+        <span class="mode-letter">B</span>
+        <span class="mode-name">Swing</span>
+        <span class="mode-desc">Weekly view, sectors, institutional flows, weekly news.</span>
+      </button>
+      <button class="mode-btn" onclick="selectMode('C')">
+        <span class="mode-letter">C</span>
+        <span class="mode-name">Full Report</span>
+        <span class="mode-desc">Everything. All tabs. Complete picture.</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── REPORT ──────────────────────────────────────────────── -->
+<div id="report">
+  <div class="rpt-header">
+    <div style="display:flex;align-items:center;gap:.8rem">
+      <span class="rpt-title">US Morning Market Briefing</span>
+      <span id="mode-badge" class="mode-badge"></span>
+    </div>
+    <div class="rpt-meta">
+      <span id="rpt-time"></span>
+      <button id="back-btn" onclick="goBack()">← New Report</button>
+    </div>
+  </div>
+  <div class="tab-bar" id="tab-bar"></div>
+  <div id="tab-content"></div>
+  <div class="disclaimer">
+    DISCLAIMER: This report is for informational purposes only and does not constitute financial or investment advice.
+    All data is fetched live from Yahoo Finance and may be delayed. Always verify figures at primary sources before acting.
+    Past performance does not guarantee future results.
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS & STATE
+// ═══════════════════════════════════════════════════════
+const SYM = {
+  futures: 'ES=F', sp500: '^GSPC', dow: '^DJI', nasdaq: '^IXIC',
+  russell: '^RUT', vix: '^VIX', dxy: 'DX-Y.NYB', eurusd: 'EURUSD=X',
+  t10y: '^TNX', wti: 'CL=F', gold: 'GC=F', silver: 'SI=F',
+  ftse: '^FTSE', dax: '^GDAXI', nikkei: '^N225', hangseng: '^HSI', shanghai: '000001.SS',
+  xlk:'XLK', xlv:'XLV', xlf:'XLF', xly:'XLY', xlp:'XLP',
+  xli:'XLI', xle:'XLE', xlu:'XLU', xlb:'XLB', xlre:'XLRE', xlc:'XLC'
+};
+
+const SECTOR_LABELS = {
+  XLK:'Technology', XLV:'Healthcare', XLF:'Financials', XLY:'Consumer Disc.',
+  XLP:'Consumer Staples', XLI:'Industrials', XLE:'Energy', XLU:'Utilities',
+  XLB:'Materials', XLRE:'Real Estate', XLC:'Comm. Services'
+};
+
+const TABS = {
+  A: ['Opening Brief','Levels','Technicals','Options Pulse','Commodities','News','Verdict'],
+  B: ['Opening Brief','Global Markets','Sectors','Flows & Movers','Commodities','News','Verdict'],
+  C: ['Opening Brief','Levels','Technicals','Options Pulse','Global Markets','Sectors','Flows & Movers','Commodities','News','Verdict']
+};
+
+const YF_URL = 'https://finance.yahoo.com';
+let MODE = null, DATA = {}, CURRENT_TAB = 0, TAB_LOADED = {};
+
+// ═══════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════
+const fmt = (n, d=2) => n == null ? '–' : (+n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtPct = (n) => n == null ? '–' : `${n>=0?'+':''}${(+n).toFixed(2)}%`;
+const fmtBps = (n) => n == null ? '–' : `${n>=0?'+':''}${(n*100).toFixed(1)} bps`;
+
+function colorClass(v){ return v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu'; }
+function arrow(v){ return v > 0 ? '▲' : v < 0 ? '▼' : '–'; }
+
+function freshLabel(ts, marketState) {
+  if (!ts) return `<span class="freshness fresh-na">N/A</span>`;
+  const now = Date.now() / 1000;
+  const diff = now - ts;
+  const etTime = new Date(ts * 1000).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',timeZone:'America/New_York'});
+  if (marketState === 'REGULAR' && diff < 1800) return `<span class="freshness fresh-live">Live</span>`;
+  if (marketState === 'PRE') return `<span class="freshness fresh-delayed">Futures ${etTime} ET</span>`;
+  if (marketState === 'POST' || marketState === 'CLOSED') {
+    const d = new Date(ts*1000);
+    const label = d.toLocaleDateString('en-US',{day:'2-digit',month:'short',year:'numeric',timeZone:'America/New_York'});
+    return `<span class="freshness fresh-close">Close ${label}</span>`;
+  }
+  if (diff < 10800) return `<span class="freshness fresh-delayed">Delayed ${etTime} ET</span>`;
+  return `<span class="freshness fresh-na">Stale</span>`;
+}
+
+function srcLink(text, url) {
+  return `<span class="src">Source: <a href="${url}" target="_blank">${text}</a></span>`;
+}
+
+function interpretVIX(v) {
+  if (v < 15) return ['pos','Below 15 — market is calm'];
+  if (v < 20) return ['neu','15–20 — some nervousness'];
+  if (v < 30) return ['amb','20–30 — market is anxious'];
+  return ['neg','Above 30 — high fear'];
+}
+
+function interpretRSI(v) {
+  if (v < 30) return ['pos','Oversold — potential bounce'];
+  if (v > 70) return ['amb','Overbought — may cool off'];
+  return ['neu','Neutral zone (30–70)'];
+}
+
+function calcPivots(h, l, c) {
+  const p = (h + l + c) / 3;
+  return {
+    P: p, R1: 2*p - l, R2: p + (h - l),
+    S1: 2*p - h, S2: p - (h - l)
+  };
+}
+
+function candleType(o, h, l, c) {
+  if (!o || !h || !l || !c) return { name:'–', meaning:'–' };
+  const body = Math.abs(c - o);
+  const bodyPct = (body / o) * 100;
+  const upper = h - Math.max(o, c);
+  const lower = Math.min(o, c) - l;
+  const bull = c >= o;
+  if (bodyPct < 0.06) return { name:'Doji', meaning:'Market indecision — watch for a direction break.' };
+  if (upper > body * 2 && lower < body * 0.4) return { name: bull ? 'Shooting Star' : 'Hanging Man', meaning:'Sellers pushed back hard — potential reversal.' };
+  if (lower > body * 2 && upper < body * 0.4) return { name: bull ? 'Hammer' : 'Inverted Hammer', meaning: bull ? 'Buyers rejected lower prices — bullish signal.' : 'Potential reversal — confirm next session.' };
+  if (bodyPct > 0.6) return { name: bull ? 'Strong Bullish Candle' : 'Strong Bearish Candle', meaning: bull ? 'Buyers in control — upward momentum.' : 'Sellers in control — downward momentum.' };
+  return { name: bull ? 'Bullish Candle' : 'Bearish Candle', meaning: bull ? 'Mild bullish bias.' : 'Mild bearish bias.' };
+}
+
+function tagForTitle(t) {
+  const low = t.toLowerCase();
+  if (/fed|fomc|rate|powell|reserve/.test(low)) return 'FED';
+  if (/earn|profit|revenue|eps|quarter/.test(low)) return 'EARNINGS';
+  if (/china|europe|global|asia|japan|uk|euro/.test(low)) return 'GLOBAL';
+  if (/sector|energy|tech|bank|health|auto/.test(low)) return 'SECTOR';
+  if (/gdp|inflation|cpi|pce|jobs|unemployment|macro/.test(low)) return 'MACRO';
+  if (/\$[A-Z]{1,5}|stock|shares|ipo|merger/.test(t)) return 'CORP';
+  return 'DOMESTIC';
+}
+
+
+// ═══════════════════════════════════════════════════════
+// PER-TAB DATA FETCHING
+// ═══════════════════════════════════════════════════════
+
+// What each tab needs to fetch
+const TAB_DEPS = {
+  'Opening Brief':  ['core'],
+  'Levels':         ['core'],
+  'Technicals':     ['technicals'],
+  'Options Pulse':  [],
+  'Global Markets': ['global'],
+  'Sectors':        ['sectors'],
+  'Flows & Movers': ['movers','etfs'],
+  'Commodities':    ['commodities'],
+  'News':           ['news'],
+  'Verdict':        ['core','technicals']
+};
+
+// Fetchers — each returns data merged into DATA
+const FETCHERS = {
+  core:        () => fetch(`/api/quotes?symbols=${[SYM.futures,SYM.sp500,SYM.dow,SYM.nasdaq,SYM.russell,SYM.vix].join(',')}`).then(r=>r.json()),
+  commodities: () => fetch(`/api/quotes?symbols=${[SYM.dxy,SYM.eurusd,SYM.t10y,SYM.wti,SYM.gold,SYM.silver].join(',')}`).then(r=>r.json()),
+  global:      () => fetch(`/api/quotes?symbols=${[SYM.ftse,SYM.dax,SYM.nikkei,SYM.hangseng,SYM.shanghai].join(',')}`).then(r=>r.json()),
+  sectors:     () => fetch(`/api/quotes?symbols=${[SYM.xlk,SYM.xlv,SYM.xlf,SYM.xly,SYM.xlp,SYM.xli,SYM.xle,SYM.xlu,SYM.xlb,SYM.xlre,SYM.xlc].join(',')}`).then(r=>r.json()),
+  etfs:        () => fetch(`/api/quotes?symbols=SPY,QQQ,IWM`).then(r=>r.json()),
+  technicals:  () => fetch('/api/technicals?symbol=%5EGSPC').then(r=>r.json()),
+  movers:      () => fetch('/api/movers').then(r=>r.json()),
+  news:        () => fetch('/api/news').then(r=>r.json()),
+};
+
+async function fetchForTab(tabName) {
+  const deps = TAB_DEPS[tabName] || [];
+  if (!deps.length) return; // nothing to fetch (e.g. Options Pulse)
+
+  DATA.quotes = DATA.quotes || {};
+
+  await Promise.all(deps.map(async (dep) => {
+    try {
+      const result = await FETCHERS[dep]();
+      if (dep === 'technicals') { DATA.technicals = result; }
+      else if (dep === 'movers') { DATA.movers = result; }
+      else if (dep === 'news')   { DATA.news = result; }
+      else { Object.assign(DATA.quotes, result); } // merge quote maps
+    } catch(e) {
+      console.warn(`Fetch failed for dep "${dep}":`, e.message);
+    }
+  }));
+}
+
+// ═══════════════════════════════════════════════════════
+// FLOW
+// ═══════════════════════════════════════════════════════
+function selectMode(mode) {
+  MODE = mode;
+  DATA = {}; TAB_LOADED = {};
+  document.getElementById('landing').style.display = 'none';
+  buildReport(mode);
+}
+
+function goBack() {
+  document.getElementById('report').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+  MODE = null; DATA = {}; TAB_LOADED = {};
+}
+
+function buildReport(mode) {
+  const rpt = document.getElementById('report');
+  rpt.style.display = 'flex';
+
+  document.getElementById('mode-badge').textContent = mode === 'A' ? 'Intraday' : mode === 'B' ? 'Swing' : 'Full Report';
+  document.getElementById('rpt-time').textContent = new Date().toLocaleString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',month:'short',day:'numeric'}) + ' ET';
+
+  const tabs = TABS[mode];
+  document.getElementById('tab-bar').innerHTML = tabs.map((t, i) =>
+    `<button class="tab-btn${i===0?' active':''}" onclick="showTab(${i})">${t}</button>`
+  ).join('');
+
+  document.getElementById('tab-content').innerHTML = tabs.map((t, i) =>
+    `<div class="tab-pane${i===0?' active':''}" id="pane-${i}">${fetchGate(t, i)}</div>`
+  ).join('');
+
+  CURRENT_TAB = 0;
+}
+
+function fetchGate(tabName, idx) {
+  const deps = TAB_DEPS[tabName] || [];
+  if (!deps.length) {
+    // Options Pulse has static content — render immediately
+    return renderTab(MODE, tabName, idx);
+  }
+  return `<div class="fetch-gate" id="gate-${idx}">
+    <button class="fetch-btn" onclick="loadTab(${idx},'${tabName}')">Fetch Live Data</button>
+    <span class="fetch-desc">${tabName} — click to fetch live market data</span>
+  </div>
+  <div id="data-${idx}"></div>`;
+}
+
+async function loadTab(idx, tabName) {
+  const gate = document.getElementById(`gate-${idx}`);
+  const dataEl = document.getElementById(`data-${idx}`);
+  const btn = gate?.querySelector('.fetch-btn');
+
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="tab-spinner"></span>Fetching…'; }
+
+  await fetchForTab(tabName);
+
+  if (gate) gate.style.display = 'none';
+  const fetchedAt = new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit'});
+  dataEl.innerHTML = `
+    <div class="tab-fetched-bar">
+      <span>Fetched at ${fetchedAt} ET</span>
+      <button class="refresh-btn" onclick="refreshTab(${idx},'${tabName}')">↻ Refresh</button>
+    </div>
+    ${renderTab(MODE, tabName, idx)}`;
+
+  TAB_LOADED[idx] = true;
+}
+
+async function refreshTab(idx, tabName) {
+  const dataEl = document.getElementById(`data-${idx}`);
+  const btn = dataEl?.querySelector('.refresh-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '↻ Refreshing…'; }
+
+  await fetchForTab(tabName);
+
+  const fetchedAt = new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit'});
+  dataEl.innerHTML = `
+    <div class="tab-fetched-bar">
+      <span>Fetched at ${fetchedAt} ET</span>
+      <button class="refresh-btn" onclick="refreshTab(${idx},'${tabName}')">↻ Refresh</button>
+    </div>
+    ${renderTab(MODE, tabName, idx)}`;
+}
+
+function showTab(i) {
+  document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab-pane').forEach((p,j) => p.classList.toggle('active', j===i));
+  CURRENT_TAB = i;
+}
+
+function renderTab(mode, name, idx) {
+  const n = name.toLowerCase();
+  if (n === 'opening brief') return renderOpening(mode);
+  if (n === 'levels') return renderLevels();
+  if (n === 'technicals') return renderTechnicals();
+  if (n === 'options pulse') return renderOptions();
+  if (n === 'global markets') return renderGlobal();
+  if (n === 'sectors') return renderSectors();
+  if (n === 'flows & movers') return renderFlows();
+  if (n === 'commodities') return renderCommodities(mode);
+  if (n === 'news') return renderNews(mode);
+  if (n === 'verdict') return renderVerdict(mode);
+  return '<p>Tab coming soon.</p>';
+}
+
+// ═══════════════════════════════════════════════════════
+// TAB RENDERERS
+// ═══════════════════════════════════════════════════════
+
+function quoteRow(label, sym, opts = {}) {
+  const q = DATA.quotes?.[sym] || {};
+  if (q.error) return `<div class="data-row"><span class="lbl">${label}</span><span class="val neu">N/A <span class="src">– ${q.error}</span></span></div>`;
+  const price = q.price;
+  const chg = q.change;
+  const pct = q.changePercent;
+  const fresh = freshLabel(q.timestamp, q.marketState);
+  const cls = colorClass(chg);
+  const wkPct = q.weeklyChangePercent;
+  const wkSpan = opts.weekly && wkPct != null
+    ? ` <span class="${colorClass(wkPct)}" style="font-size:.78rem;margin-left:.5rem">(Wk ${fmtPct(wkPct)})</span>` : '';
+  return `
+    <div class="data-row" style="flex-wrap:wrap;row-gap:.1rem">
+      <span class="lbl">${label}</span>
+      <div>
+        <span class="val">${fmt(price,2)}</span>${fresh}
+        <span class="${cls} chg-badge">${arrow(chg)} ${fmtPct(pct)}${wkSpan}</span><br>
+        <span class="src">Source: <a href="${YF_URL}/quote/${sym.replace('^','%5E')}" target="_blank">Yahoo Finance</a></span>
+      </div>
+    </div>`;
+}
+
+// ── Opening Brief ─────────────────────────────────────
+function renderOpening(mode) {
+  const sp = DATA.quotes?.[SYM.sp500] || {};
+  const fut = DATA.quotes?.[SYM.futures] || {};
+  const vix = DATA.quotes?.[SYM.vix] || {};
+
+  const gapPts = fut.price && sp.previousClose ? (fut.price - sp.previousClose) : null;
+  const gapPct = gapPts != null && sp.previousClose ? (gapPts / sp.previousClose) * 100 : null;
+  const gapLabel = gapPct == null ? '–' : Math.abs(gapPct) < 0.1 ? 'Flat' : gapPct > 0.5 ? 'Large Gap Up' : gapPct > 0 ? 'Small Gap Up' : gapPct < -0.5 ? 'Large Gap Down' : 'Small Gap Down';
+
+  const [vixCls, vixNote] = vix.price ? interpretVIX(vix.price) : ['neu','–'];
+  const [spCls] = sp.changePercent != null ? [colorClass(sp.changePercent)] : ['neu'];
+
+  const isSwingMode = mode === 'B' || mode === 'C';
+  const intro1 = sp.previousClose ? `S&P 500 previous close: ${fmt(sp.previousClose)}. Current: ${fmt(sp.price)}.` : 'S&P 500 data unavailable.';
+  const intro2 = fut.price ? `Futures at ${fmt(fut.price,2)} — ${gapLabel} (~${gapPts!=null?fmt(Math.abs(gapPts),1):'–'} pts).` : 'Futures data unavailable.';
+  const intro3 = vix.price ? `VIX at ${fmt(vix.price,2)} — ${vixNote}.` : 'VIX data unavailable.';
+
+  return `
+  <div class="card">
+    <div class="card-title">Market Snapshot</div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.6rem">${intro1}</p>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.6rem">${intro2}</p>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">${intro3}</p>
+    <div class="data-grid">
+      ${quoteRow('S&P Futures (ES)',SYM.futures,{weekly:isSwingMode})}
+      ${quoteRow('S&P 500',SYM.sp500,{weekly:isSwingMode})}
+      ${quoteRow('Dow Jones',SYM.dow,{weekly:isSwingMode})}
+      ${quoteRow('Nasdaq',SYM.nasdaq,{weekly:isSwingMode})}
+      ${quoteRow('Russell 2000',SYM.russell,{weekly:isSwingMode})}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Volatility — VIX</div>
+    <div class="data-grid">
+      <div class="data-row">
+        <span class="lbl">VIX Level</span>
+        <div>
+          <span class="val ${vixCls}">${fmt(vix.price,2)}</span>
+          ${freshLabel(vix.timestamp, vix.marketState)}
+          <span class="${vixCls}" style="font-size:.82rem;margin-left:.4rem">${vixNote}</span><br>
+          <span class="src">Source: <a href="https://www.cboe.com/tradable_products/vix/" target="_blank">CBOE</a> / <a href="${YF_URL}/quote/%5EVIX" target="_blank">Yahoo Finance</a></span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:.8rem;font-size:.78rem;color:var(--dim);line-height:1.7">
+      Below 15 = calm &nbsp;|&nbsp; 15–20 = nervous &nbsp;|&nbsp; 20–30 = anxious &nbsp;|&nbsp; Above 30 = high fear
+    </div>
+  </div>`;
+}
+
+// ── Levels ────────────────────────────────────────────
+function renderLevels() {
+  const sp = DATA.quotes?.[SYM.sp500] || {};
+  const { prevOpen:o, prevHigh:h, prevLow:l, prevClose2:c } = sp;
+  const candle = candleType(o, h, l, c);
+  const pivots = (h && l && c) ? calcPivots(h, l, c) : null;
+  const cur = sp.price;
+
+  return `
+  <div class="card">
+    <div class="card-title">Previous Day — S&P 500 OHLC</div>
+    ${(o&&h&&l&&c) ? `
+    <div class="data-grid" style="grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.8rem">
+      <div><div class="lbl">Open</div><div class="val">${fmt(o)}</div></div>
+      <div><div class="lbl">High</div><div class="val pos">${fmt(h)}</div></div>
+      <div><div class="lbl">Low</div><div class="val neg">${fmt(l)}</div></div>
+      <div><div class="lbl">Close</div><div class="val">${fmt(c)}</div></div>
+    </div>
+    <div style="font-size:.82rem"><span style="color:var(--muted)">Candle:</span> <strong>${candle.name}</strong> — ${candle.meaning}</div>
+    ${srcLink('Yahoo Finance (SPY)', `${YF_URL}/quote/SPY`)}
+    ` : `<div class="na-box">Previous day OHLC not available — check <a href="${YF_URL}/quote/%5EGSPC/history" target="_blank">Yahoo Finance history</a></div>`}
+  </div>
+
+  <div class="card">
+    <div class="card-title">Advance / Decline (NYSE)</div>
+    <div class="na-box">⚠ Real-time A/D data requires a market data subscription.
+      Check <a href="https://www.marketwatch.com/market-data/us?mod=market-data-center" target="_blank">MarketWatch Market Data</a>
+      or <a href="https://www.barchart.com/stocks/market-breadth" target="_blank">Barchart Market Breadth</a>.</div>
+  </div>
+
+  ${pivots ? `
+  <div class="card">
+    <div class="card-title">Classic Pivot Levels (calculated from prev day OHLC)</div>
+    <div class="pivot-map">
+      ${[['R2',pivots.R2,'Strong resistance — market may reverse','r2'],
+         ['R1',pivots.R1,'First resistance — watch for selling','r1'],
+         ['Pivot',pivots.P,'Balance point for today','pp'],
+         ['S1',pivots.S1,'First support — watch for buying','s1'],
+         ['S2',pivots.S2,'Strong support — potential bounce','s2']].map(([lbl,val,note,cls])=>`
+        <div class="pivot-row">
+          <span class="plbl">${lbl}</span>
+          <span class="pline ${cls}"></span>
+          <span class="pval ${cur>val?'pos':'neg'}">${fmt(val)}</span>
+          <span class="pnote">${note}</span>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:.5rem;font-size:.75rem;color:var(--dim)">Current S&P 500: <strong>${fmt(cur)}</strong> — Formula: Classic (not Fibonacci)</div>
+    ${srcLink('Calculated from Yahoo Finance OHLC', `${YF_URL}/quote/%5EGSPC`)}
+  </div>` : ''}
+
+  <div class="card">
+    <div class="card-title">Intraday Time Windows (ET)</div>
+    <div class="time-windows">
+      <div class="tw-row"><span>9:30 – 10:00</span><span>Opening range. Watch gap fill vs. gap continuation. High volume expected — don't chase.</span></div>
+      <div class="tw-row"><span>11:00 – 12:00</span><span>Mid-morning consolidation. Market often digests the open. Fade extremes or wait for breakout.</span></div>
+      <div class="tw-row"><span>3:00 – 4:00</span><span>Closing hour. Institutional activity increases. Watch for reversals or trend confirmation into close.</span></div>
+    </div>
+  </div>`;
+}
+
+// ── Technicals ────────────────────────────────────────
+function renderTechnicals() {
+  const t = DATA.technicals || {};
+  const sp = DATA.quotes?.[SYM.sp500]?.price;
+
+  function dmaRow(label, val) {
+    if (!val || !sp) return `<div class="data-row wide"><span class="lbl">${label}</span><span class="val neu">N/A</span></div>`;
+    const above = sp > val;
+    return `<div class="data-row wide">
+      <span class="lbl">${label}</span>
+      <div>
+        <span class="val">${fmt(val)}</span>
+        <span class="${above?'pos':'neg'}" style="font-size:.82rem;margin-left:.4rem">S&P is ${above?'above ▲':'below ▼'}</span><br>
+        <span style="font-size:.78rem;color:var(--muted)">${above?'Short-term support — bullish while price holds above.':'Warning — price below moving average, bearish pressure.'}</span><br>
+        ${srcLink('Yahoo Finance', `${YF_URL}/quote/%5EGSPC`)}
+      </div>
+    </div>`;
+  }
+
+  const rsi = t.rsi;
+  const [rsiCls, rsiNote] = rsi != null ? interpretRSI(rsi) : ['neu','–'];
+  const rsiWidth = rsi != null ? Math.min(Math.max(rsi, 0), 100) : 0;
+
+  const macd = t.macd;
+
+  return `
+  <div class="card">
+    <div class="card-title">Moving Averages — S&P 500</div>
+    <div class="data-grid">${dmaRow('20 DMA',t.sma20)}${dmaRow('50 DMA',t.sma50)}${dmaRow('200 DMA',t.sma200)}</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">RSI (14)</div>
+    ${rsi != null ? `
+    <div style="font-size:1.4rem;font-weight:700;font-family:var(--mono);color:var(--${rsiCls==='pos'?'green':rsiCls==='amb'?'amber':'text'})">${rsi}</div>
+    <div class="rsi-track"><div class="rsi-fill" style="width:${rsiWidth}%"></div></div>
+    <div class="rsi-zones"><span>0 — Oversold</span><span>30</span><span>50</span><span>70</span><span>100 — Overbought</span></div>
+    <div style="margin-top:.6rem;font-size:.83rem"><span class="${rsiCls}">${rsiNote}</span></div>
+    ` : `<div class="na-box">RSI not calculated — insufficient data points (${t.dataPoints||0})</div>`}
+    ${srcLink('Calculated from Yahoo Finance data', `${YF_URL}/quote/%5EGSPC`)}
+  </div>
+
+  <div class="card">
+    <div class="card-title">MACD (12, 26, 9)</div>
+    ${macd ? `
+    <div class="data-grid">
+      <div class="data-row"><span class="lbl">MACD Line</span><span class="val ${colorClass(macd.macd)}">${macd.macd}</span></div>
+      <div class="data-row"><span class="lbl">Signal Line</span><span class="val">${macd.signal}</span></div>
+      <div class="data-row"><span class="lbl">Histogram</span><span class="val ${colorClass(macd.histogram)}">${macd.histogram} ${macd.histogram>0?'▲ Positive':'▼ Negative'}</span></div>
+    </div>
+    <div style="margin-top:.7rem;font-size:.82rem;color:var(--muted)">
+      ${macd.histogram > 0 ? 'Positive histogram — upward momentum building.' : 'Negative histogram — momentum fading or falling.'}
+    </div>
+    ` : `<div class="na-box">MACD unavailable — check <a href="${YF_URL}/quote/%5EGSPC/chart" target="_blank">Yahoo Finance chart</a> or <a href="https://finviz.com/futures_charts.ashx?t=ES&p=d1" target="_blank">Finviz</a></div>`}
+    ${srcLink('Calculated from Yahoo Finance data', `${YF_URL}/quote/%5EGSPC`)}
+  </div>`;
+}
+
+// ── Options Pulse ─────────────────────────────────────
+function renderOptions() {
+  return `
+  <div class="card">
+    <div class="card-title">Put/Call Ratio (PCR) — CBOE Total</div>
+    <div class="na-box">⚠ Live PCR requires CBOE direct data. Check:
+      <a href="https://www.cboe.com/data/historical-options-data/options-volume-put-call-ratios/" target="_blank">CBOE PCR Page</a>
+      or <a href="https://www.barchart.com/options/put-call-ratio/stocks" target="_blank">Barchart PCR</a><br><br>
+      PCR below 0.7 = more call bets = possible complacency.<br>
+      PCR 0.7–1.0 = balanced bets.<br>
+      PCR above 1.0 = more put bets = hedging / fear increasing.
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Max Pain (SPY)</div>
+    <div class="na-box">⚠ Max Pain data requires options chain access. Check:
+      <a href="https://www.barchart.com/stocks/quotes/SPY/options" target="_blank">Barchart SPY Options</a>
+      or <a href="https://unusualwhales.com/options/SPY" target="_blank">Unusual Whales SPY</a></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Top Call OI &amp; Put OI Strikes (SPX / SPY)</div>
+    <div class="na-box">⚠ Options OI by strike requires a data subscription. Check:
+      <a href="https://www.cboe.com/delayed_quotes/spx/quote_table" target="_blank">CBOE SPX Quote Table</a>
+      or <a href="https://www.barchart.com/stocks/quotes/SPY/options" target="_blank">Barchart SPY</a></div>
+  </div>`;
+}
+
+// ── Global Markets ────────────────────────────────────
+function renderGlobal() {
+  const q = (sym) => DATA.quotes?.[sym] || {};
+
+  function globalRow(label, sym) {
+    const d = q(sym);
+    if (d.error || !d.price) return `<div class="data-row"><span class="lbl">${label}</span><span class="val neu">N/A — <a href="${YF_URL}/quote/${sym.replace('^','%5E')}" target="_blank" style="color:var(--blue)">check Yahoo</a></span></div>`;
+    const cls = colorClass(d.changePercent);
+    return `<div class="data-row">
+      <span class="lbl">${label}</span>
+      <div>
+        <span class="val">${fmt(d.price,2)}</span>
+        ${freshLabel(d.timestamp, d.marketState)}
+        <span class="${cls} chg-badge">${arrow(d.changePercent)} ${fmtPct(d.changePercent)}</span><br>
+        ${srcLink('Yahoo Finance', `${YF_URL}/quote/${sym.replace('^','%5E')}`)}
+      </div>
+    </div>`;
+  }
+
+  const euData = [q(SYM.ftse), q(SYM.dax)];
+  const asData = [q(SYM.nikkei), q(SYM.hangseng), q(SYM.shanghai)];
+  const euChgs = euData.map(d=>d.changePercent).filter(v=>v!=null);
+  const asChgs = asData.map(d=>d.changePercent).filter(v=>v!=null);
+  const euAvg = euChgs.length ? euChgs.reduce((a,b)=>a+b,0)/euChgs.length : null;
+  const asAvg = asChgs.length ? asChgs.reduce((a,b)=>a+b,0)/asChgs.length : null;
+  const allChgs = [...euChgs,...asChgs];
+  const allAvg = allChgs.length ? allChgs.reduce((a,b)=>a+b,0)/allChgs.length : null;
+  const mood = allAvg == null ? null : allAvg > 0.3 ? ['Positive','mood-pos'] : allAvg < -0.3 ? ['Negative','mood-neg'] : ['Mixed','mood-mix'];
+
+  return `
+  <div class="card">
+    <div class="card-title">European Markets</div>
+    <div class="data-grid">
+      ${globalRow('FTSE 100', SYM.ftse)}
+      ${globalRow('DAX', SYM.dax)}
+    </div>
+    ${euAvg!=null?`<div style="margin-top:.6rem;font-size:.8rem;color:var(--muted)">European avg: <span class="${colorClass(euAvg)}">${fmtPct(euAvg)}</span></div>`:''}
+  </div>
+  <div class="card">
+    <div class="card-title">Asian Markets</div>
+    <div class="data-grid">
+      ${globalRow('Nikkei 225', SYM.nikkei)}
+      ${globalRow('Hang Seng', SYM.hangseng)}
+      ${globalRow('Shanghai', SYM.shanghai)}
+    </div>
+    <div style="margin-top:.4rem;font-size:.75rem;color:var(--dim)">Asian markets show previous close if session has ended.</div>
+    ${asAvg!=null?`<div style="margin-top:.4rem;font-size:.8rem;color:var(--muted)">Asian avg: <span class="${colorClass(asAvg)}">${fmtPct(asAvg)}</span></div>`:''}
+  </div>
+  ${mood ? `
+  <div class="card">
+    <div class="card-title">Global Mood</div>
+    <span class="mood-badge ${mood[1]}">${mood[0]}</span>
+    <p style="font-size:.83rem;color:var(--muted);margin-top:.6rem">
+      ${mood[0]==='Positive' ? 'Global equities are broadly rising — risk-on sentiment likely to support US open.' :
+        mood[0]==='Negative' ? 'Global equities are falling — risk-off pressure may weigh on US futures.' :
+        'Mixed signals from global markets — no clear directional bias for the US open.'}
+    </p>
+  </div>` : ''}`;
+}
+
+// ── Sectors ────────────────────────────────────────────
+function renderSectors() {
+  const syms = [SYM.xlk,SYM.xlv,SYM.xlf,SYM.xly,SYM.xlp,SYM.xli,SYM.xle,SYM.xlu,SYM.xlb,SYM.xlre,SYM.xlc];
+  const src = DATA.sectors || DATA.quotes || {};
+  const rows = syms.map(s => ({
+    sym: s, label: SECTOR_LABELS[s] || s,
+    pct: src[s]?.weeklyChangePercent ?? src[s]?.changePercent ?? null
+  })).filter(r => r.pct != null).sort((a,b) => b.pct - a.pct);
+
+  if (!rows.length) return `<div class="card"><div class="na-box">Sector data unavailable — check <a href="https://finviz.com/groups.ashx?g=sector&sg=&o=name" target="_blank">Finviz Sectors</a></div></div>`;
+
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.pct)), 0.01);
+  const best = rows[0], worst = rows[rows.length-1];
+
+  return `
+  <div class="card">
+    <div class="card-title">S&P 500 Sector Performance (Weekly % Change)</div>
+    ${srcLink('Yahoo Finance sector ETFs (XLK, XLV, XLF…)', `${YF_URL}/markets/stocks/sectors/`)}
+    <table class="sector-table" style="margin-top:.8rem">
+      <tr><th>Sector</th><th>Weekly</th><th class="bar-cell">Change Bar</th></tr>
+      ${rows.map(r=>`
+      <tr>
+        <td>${r.label}</td>
+        <td class="${colorClass(r.pct)}">${fmtPct(r.pct)}</td>
+        <td class="bar-cell">
+          <div class="pct-bar" style="width:${Math.abs(r.pct)/maxAbs*100}%;background:${r.pct>=0?'var(--green)':'var(--red)'};min-width:2px"></div>
+        </td>
+      </tr>`).join('')}
+    </table>
+    <div style="margin-top:.9rem;font-size:.82rem;color:var(--muted)">
+      <strong>Top:</strong> ${best.label} (${fmtPct(best.pct)}) — leading money flow this week.<br>
+      <strong>Weakest:</strong> ${worst.label} (${fmtPct(worst.pct)}) — institutional rotation out.
+    </div>
+  </div>`;
+}
+
+// ── Flows & Movers ────────────────────────────────────
+function renderFlows() {
+  const { gainers = [], losers = [] } = DATA.movers || {};
+
+  function moverTable(items, label, isGainer) {
+    if (!items.length) return `<div class="na-box">No ${label} data — check <a href="https://finance.yahoo.com/markets/stocks/${isGainer?'gainers':'losers'}/" target="_blank">Yahoo Finance ${label}</a></div>`;
+    return `<table class="sector-table">
+      <tr><th>Symbol</th><th>Name</th><th>Price</th><th>Change</th></tr>
+      ${items.map(m=>`<tr>
+        <td><a href="${YF_URL}/quote/${m.symbol}" target="_blank" style="color:var(--blue)">${m.symbol}</a></td>
+        <td style="color:var(--muted);font-size:.78rem">${m.name||'–'}</td>
+        <td class="val">${fmt(m.price)}</td>
+        <td class="${isGainer?'pos':'neg'}">${fmtPct(m.changePercent)}</td>
+      </tr>`).join('')}
+    </table>`;
+  }
+
+  return `
+  <div class="card">
+    <div class="card-title">Weekly ETF Fund Flows</div>
+    <div class="na-box">⚠ Institutional ETF flow data requires a premium data feed.
+      Check <a href="https://etfdb.com/compare/fund-flows/" target="_blank">ETFdb Fund Flows</a>
+      or <a href="https://www.etf.com/sections/etf-weekly-flows" target="_blank">ETF.com Weekly Flows</a>.<br><br>
+      SPY / QQQ / IWM weekly % change shown below as a proxy:
+    </div>
+    <div class="data-grid" style="margin-top:.8rem">
+      ${quoteRow('SPY (S&P ETF)', 'SPY', {weekly:true})}
+      ${quoteRow('QQQ (Nasdaq ETF)', 'QQQ', {weekly:true})}
+      ${quoteRow('IWM (Russell ETF)', 'IWM', {weekly:true})}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Top 5 Gainers Today</div>
+    ${moverTable(gainers, 'Gainers', true)}
+    ${srcLink('Yahoo Finance Day Gainers', `${YF_URL}/markets/stocks/gainers/`)}
+  </div>
+  <div class="card">
+    <div class="card-title">Top 5 Losers Today</div>
+    ${moverTable(losers, 'Losers', false)}
+    ${srcLink('Yahoo Finance Day Losers', `${YF_URL}/markets/stocks/losers/`)}
+  </div>`;
+}
+
+// ── Commodities ───────────────────────────────────────
+function renderCommodities(mode) {
+  const isSwing = mode === 'B' || mode === 'C';
+  function comRow(label, sym, unit, extraNote) {
+    const d = DATA.quotes?.[sym] || {};
+    if (d.error || !d.price) return `<div class="data-row"><span class="lbl">${label}</span><span class="val neu">N/A</span></div>`;
+    const cls = colorClass(d.changePercent);
+    const chgDisplay = sym === SYM.t10y ? fmtBps(d.changePercent ? d.changePercent/100 : null) : fmtPct(d.changePercent);
+    return `<div class="data-row">
+      <span class="lbl">${label}</span>
+      <div>
+        <span class="val">${fmt(d.price,sym===SYM.eurusd||sym===SYM.t10y?4:2)}${unit?` ${unit}`:''}</span>
+        ${freshLabel(d.timestamp, d.marketState)}
+        <span class="${cls} chg-badge">${arrow(d.changePercent)} ${chgDisplay}</span><br>
+        ${extraNote ? `<span style="font-size:.78rem;color:var(--muted)">${extraNote}</span><br>` : ''}
+        ${srcLink('Yahoo Finance', `${YF_URL}/quote/${sym.replace('^','%5E').replace('=','-')}`)}
+      </div>
+    </div>`;
+  }
+
+  const dxy = DATA.quotes?.[SYM.dxy];
+  const t10y = DATA.quotes?.[SYM.t10y];
+  const dxyNote = dxy?.changePercent ? (dxy.changePercent > 0 ? 'Stronger dollar — headwind for US multinationals and commodities.' : 'Weaker dollar — tailwind for exports and commodities.') : '';
+  const yieldNote = t10y?.price ? (t10y.price > 4.5 ? 'High yields — pressure on growth stocks and rate-sensitive sectors.' : t10y.price > 3.5 ? 'Moderate yields — balanced impact on equities.' : 'Low yields — supportive for growth stocks.') : '';
+
+  return `
+  <div class="card">
+    <div class="card-title">FX &amp; Rates</div>
+    <div class="data-grid">
+      ${comRow('DXY (Dollar Index)', SYM.dxy, '', dxyNote)}
+      ${comRow('EUR/USD', SYM.eurusd, '', '')}
+      ${comRow('US 10Y Treasury', SYM.t10y, '%', yieldNote)}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Commodities</div>
+    <div class="data-grid">
+      ${comRow('WTI Crude', SYM.wti, '/bbl', '')}
+      ${comRow('Gold', SYM.gold, '/oz', '')}
+      ${comRow('Silver', SYM.silver, '/oz', '')}
+    </div>
+  </div>
+  ${isSwing ? `
+  <div class="card">
+    <div class="card-title">Upcoming IPOs This Month</div>
+    <div class="na-box">⚠ IPO calendar: <a href="https://www.nasdaq.com/market-activity/ipos" target="_blank">Nasdaq IPO Calendar</a>
+      or <a href="https://www.marketwatch.com/tools/ipo-calendar" target="_blank">MarketWatch IPO Calendar</a></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Corporate Actions This Week</div>
+    <div class="na-box">⚠ Ex-dividend / split calendar: <a href="https://www.nasdaq.com/market-activity/dividends" target="_blank">Nasdaq Dividends</a>
+      or <a href="https://www.nasdaq.com/market-activity/stock-splits" target="_blank">Nasdaq Stock Splits</a></div>
+  </div>` : ''}`;
+}
+
+// ── News ──────────────────────────────────────────────
+function renderNews(mode) {
+  const news = DATA.news || [];
+  const timeWindow = mode === 'B' ? 'Last 5 trading days' : 'Last 12 hours';
+  const maxItems = mode === 'B' ? 10 : 8;
+  const items = news.slice(0, maxItems);
+
+  if (!items.length) return `<div class="card"><div class="na-box">No news fetched — check <a href="https://finance.yahoo.com/news" target="_blank">Yahoo Finance News</a></div></div>`;
+
+  return `
+  <div class="card">
+    <div class="card-title">Market News — ${timeWindow}</div>
+    <div class="data-grid" style="gap:0">
+      ${items.map(item => {
+        const tag = tagForTitle(item.title || '');
+        const ts = item.providerPublishTime;
+        const dateStr = ts ? new Date(ts*1000).toLocaleString('en-US',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',month:'short',day:'numeric',year:'numeric'}) + ' ET' : 'Unknown time';
+        const link = item.link || '';
+        return `<div class="news-item">
+          <span class="news-tag">${tag}</span>
+          <div class="news-title">${item.title||'–'}</div>
+          <div class="news-link">
+            ${link ? `<a href="${link}" target="_blank">Read the full article →</a>` : 'Link unavailable — search headline on Yahoo Finance'}
+          </div>
+          <div class="news-meta">Published: ${dateStr} &nbsp;·&nbsp; ${item.publisher||'Unknown'}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${srcLink('Yahoo Finance News', 'https://finance.yahoo.com/news')}
+  </div>`;
+}
+
+// ── Verdict ───────────────────────────────────────────
+function renderVerdict(mode) {
+  const sp = DATA.quotes?.[SYM.sp500] || {};
+  const fut = DATA.quotes?.[SYM.futures] || {};
+  const vix = DATA.quotes?.[SYM.vix] || {};
+  const tech = DATA.technicals || {};
+  const isSwing = mode === 'B' || mode === 'C';
+
+  let bull = 0, bear = 0, signals = [];
+
+  if (fut.changePercent != null) {
+    if (fut.changePercent > 0.1) { bull += 1; signals.push('Futures positive'); }
+    else if (fut.changePercent < -0.1) { bear += 1; signals.push('Futures negative'); }
+  }
+  if (vix.price != null) {
+    if (vix.price < 15) { bull += 0.5; signals.push('VIX low — calm'); }
+    else if (vix.price > 25) { bear += 1; signals.push('VIX elevated — fear'); }
+    else if (vix.price > 20) { bear += 0.5; signals.push('VIX above 20'); }
+  }
+  if (tech.rsi != null) {
+    if (tech.rsi < 35) { bull += 0.5; signals.push('RSI oversold'); }
+    else if (tech.rsi > 65) { bear += 0.5; signals.push('RSI overbought'); }
+  }
+  if (tech.sma200 && sp.price) {
+    if (sp.price > tech.sma200) { bull += 1; signals.push('Above 200 DMA'); }
+    else { bear += 1; signals.push('Below 200 DMA'); }
+  }
+  if (tech.macd?.histogram != null) {
+    if (tech.macd.histogram > 0) { bull += 0.5; signals.push('MACD positive'); }
+    else { bear += 0.5; signals.push('MACD negative'); }
+  }
+  if (sp.changePercent != null) {
+    if (sp.changePercent > 0) { bull += 0.5; }
+    else { bear += 0.5; }
+  }
+
+  const bias = bull > bear ? 'Bullish' : bear > bull ? 'Bearish' : 'Neutral';
+  const biasClass = bias === 'Bullish' ? 'bull' : bias === 'Bearish' ? 'bear' : 'neu';
+  const diffAbs = Math.abs(bull - bear);
+  const confidence = diffAbs >= 2.5 ? 'High' : diffAbs >= 1 ? 'Medium' : 'Low';
+  const confDotClass = confidence === 'High' ? 'conf-high' : confidence === 'Medium' ? 'conf-med' : 'conf-low';
+
+  const futPct = fut.changePercent;
+  const openDesc = futPct == null ? 'Open direction unclear.'
+    : futPct > 0.5 ? `Market expected to open gap up ~${fmt(Math.abs(fut.change)||0,1)} pts, bias ${bias.toLowerCase()}.`
+    : futPct < -0.5 ? `Market expected to open gap down ~${fmt(Math.abs(fut.change)||0,1)} pts, bias ${bias.toLowerCase()}.`
+    : `Market expected to open near flat, bias ${bias.toLowerCase()}.`;
+
+  // Key level: nearest pivot or DMA
+  const sp500 = sp.price;
+  const candidates = [];
+  if (tech.sma50) candidates.push({ label: '50 DMA', val: tech.sma50 });
+  if (tech.sma200) candidates.push({ label: '200 DMA', val: tech.sma200 });
+  const nearest = sp500 && candidates.length
+    ? candidates.reduce((a,b) => Math.abs(a.val-sp500) < Math.abs(b.val-sp500) ? a : b)
+    : null;
+
+  const traderNote = isSwing
+    ? 'Watch for trend continuation at key weekly levels. Institutional flows and sector rotation will signal where momentum is headed. No position calls — verify data before acting.'
+    : 'Today\'s trade is defined by these levels and this bias. Watch the opening range for direction. Do not chase extended moves. Manage risk at pivot levels.';
+
+  return `
+  <div class="verdict-card verdict-${biasClass}">
+    <div class="verdict-bias ${biasClass==='bull'?'pos':biasClass==='bear'?'neg':'amb'}">${bias}</div>
+    <div class="verdict-open">${openDesc}</div>
+    <div class="confidence-row">
+      <span class="conf-dot ${confDotClass}"></span>
+      <span>Confidence: <strong>${confidence}</strong></span>
+      <span style="color:var(--dim)">— ${signals.join(', ') || 'No clear signals'}</span>
+    </div>
+  </div>
+
+  ${nearest ? `
+  <div class="key-level-box">
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:.2rem">Key Level to Watch</div>
+    <span class="kl-num">${fmt(nearest.val)}</span>
+    <span style="font-size:.83rem;color:var(--muted);margin-left:.5rem">${nearest.label}</span>
+    <div style="margin-top:.4rem;font-size:.82rem;color:var(--muted)">
+      If this level holds → ${bias === 'Bullish' ? 'continuation higher is likely.' : 'bears maintain pressure.'}<br>
+      If this level breaks → ${bias === 'Bullish' ? 'watch for pullback to next support.' : 'watch for a relief bounce to resistance.'}
+    </div>
+  </div>` : ''}
+
+  <div class="trader-note">${traderNote}</div>
+
+  <div class="card" style="margin-top:1rem">
+    <div class="card-title">Signal Summary</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.2rem">
+      ${signals.map(s=>`<span style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:.15rem .5rem;font-size:.75rem;font-family:var(--mono);color:var(--muted)">${s}</span>`).join('')}
+      ${!signals.length ? '<span style="color:var(--dim);font-size:.82rem">No signals computed.</span>' : ''}
+    </div>
+    <div style="margin-top:.8rem;font-size:.75rem;color:var(--dim)">Bullish signals: ${bull.toFixed(1)} &nbsp;|&nbsp; Bearish signals: ${bear.toFixed(1)}</div>
+  </div>`;
+}
+</script>
+</body>
+</html>
